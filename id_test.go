@@ -3,12 +3,12 @@ package jsonschema_test
 import (
 	"testing"
 
-	"github.com/invopop/jsonschema"
+	"github.com/aura-sohil/jsonschema"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestID(t *testing.T) {
-	base := "https://invopop.com/schema"
+	base := "https://aura-sohil.com/schema"
 	id := jsonschema.ID(base)
 
 	assert.Equal(t, base, id.String())
@@ -27,7 +27,7 @@ func TestID(t *testing.T) {
 }
 
 func TestIDValidation(t *testing.T) {
-	id := jsonschema.ID("https://invopop.com/schema/user")
+	id := jsonschema.ID("https://aura-sohil.com/schema/user")
 	assert.NoError(t, id.Validate())
 
 	id = "https://encoding/json"
@@ -40,17 +40,17 @@ func TestIDValidation(t *testing.T) {
 		assert.Contains(t, id.Validate().Error(), "hostname")
 	}
 
-	id = "http://invopop.com"
+	id = "http://aura-sohil.com"
 	if assert.Error(t, id.Validate()) {
 		assert.Contains(t, id.Validate().Error(), "path")
 	}
 
-	id = "foor://invopop.com/schema/user"
+	id = "foor://aura-sohil.com/schema/user"
 	if assert.Error(t, id.Validate()) {
 		assert.Contains(t, id.Validate().Error(), "schema")
 	}
 
-	id = "invopop.com\n/test"
+	id = "aura-sohil.com\n/test"
 	if assert.Error(t, id.Validate()) {
 		assert.Contains(t, id.Validate().Error(), "invalid URL")
 	}
