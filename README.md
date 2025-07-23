@@ -27,6 +27,10 @@ This project is still under v0 scheme, as per Go convention, breaking changes ar
 
 Go version >= 1.18 is required as generics are now being used.
 
+## Go 1.24+ Support
+
+This library supports the new `omitzero` JSON tag introduced in Go 1.24. Fields tagged with `omitzero` will be treated the same as `omitempty` fields for schema generation - they will be made nullable (either using array format `["type", "null"]` or oneOf structures depending on your configuration).
+
 ## Example
 
 The following Go type:
@@ -192,7 +196,7 @@ will output:
 
 ### UseArrayForNullableTypes
 
-When set to `true`, nullable types (fields with `omitempty` tags or explicit `jsonschema:"nullable"`) will use the array format `["type", "null"]` instead of oneOf structures. This can be useful for compatibility with certain JSON Schema validators or for generating more compact schemas.
+When set to `true`, nullable types (fields with `omitempty` or `omitzero` tags or explicit `jsonschema:"nullable"`) will use the array format `["type", "null"]` instead of oneOf structures. This can be useful for compatibility with certain JSON Schema validators or for generating more compact schemas.
 
 Default behavior (oneOf format):
 ```json
