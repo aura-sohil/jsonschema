@@ -106,6 +106,12 @@ type Reflector struct {
 	// default of requiring any key *not* tagged with `json:,omitempty`.
 	RequiredFromJSONSchemaTags bool
 
+	// UseArrayForNullableTypes when true will represent nullable types using the
+	// array syntax ["type", "null"] instead of oneOf structures. This applies to
+	// both explicitly nullable fields (jsonschema:"nullable") and fields with
+	// omitempty tags. When false, uses the traditional oneOf format.
+	UseArrayForNullableTypes bool
+
 	// Do not reference definitions. This will remove the top-level $defs map and
 	// instead cause the entire structure of types to be output in one tree. The
 	// list of type definitions (`$defs`) will not be included.
@@ -529,14 +535,21 @@ func (r *Reflector) reflectStructFields(st *Schema, definitions Definitions, t r
 			property.Description = getFieldDocString(f.Name)
 		}
 
-		if nullable {
-			property = &Schema{
-				OneOf: []*Schema{
-					property,
-					{
-						Type: "null",
+		// Handle nullable fields
+		if (nullable || hasOmitEmpty(f)) && property.OneOf == nil && property.AnyOf == nil {
+			if r.UseArrayForNullableTypes {
+				// Use array format: ["type", "null"]
+				property = makeNullableType(property)
+			} else {
+				// Use traditional oneOf format
+				property = &Schema{
+					OneOf: []*Schema{
+						property,
+						{
+							Type: "null",
+						},
 					},
-				},
+				}
 			}
 		}
 
@@ -566,6 +579,36 @@ func appendUniqueString(base []string, value string) []string {
 		}
 	}
 	return append(base, value)
+}
+
+// makeNullableType converts a schema's Type to an array format [originalType, "null"]
+// to support nullable values without using oneOf structures
+func makeNullableType(schema *Schema) *Schema {
+	if schema.Type == nil {
+		return schema
+	}
+
+	// If already an array, check if null is already included
+	if typeArray, ok := schema.Type.([]string); ok {
+		for _, t := range typeArray {
+			if t == "null" {
+				return schema // already nullable
+			}
+		}
+		// Add null to existing array
+		newSchema := *schema
+		newSchema.Type = append(typeArray, "null")
+		return &newSchema
+	}
+
+	// Convert single type to array with null
+	if typeStr, ok := schema.Type.(string); ok {
+		newSchema := *schema
+		newSchema.Type = []string{typeStr, "null"}
+		return &newSchema
+	}
+
+	return schema
 }
 
 // addDefinition will append the provided schema. If needed, an ID and anchor will also be added.
@@ -692,7 +735,7 @@ func (t *Schema) genericKeywords(tags []string, parent *Schema, propertyName str
 				if t.OneOf == nil {
 					t.OneOf = make([]*Schema, 0, 1)
 				}
-				t.Type = ""
+				t.Type = nil // Clear type when using oneOf
 				types := strings.Split(nameValue[1], ";")
 				for _, ty := range types {
 					t.OneOf = append(t.OneOf, &Schema{
@@ -718,7 +761,7 @@ func (t *Schema) genericKeywords(tags []string, parent *Schema, propertyName str
 				if t.AnyOf == nil {
 					t.AnyOf = make([]*Schema, 0, 1)
 				}
-				t.Type = ""
+				t.Type = nil // Clear type when using anyOf
 				types := strings.Split(nameValue[1], ";")
 				for _, ty := range types {
 					t.AnyOf = append(t.AnyOf, &Schema{
@@ -956,6 +999,18 @@ func nullableFromJSONSchemaTags(tags []string) bool {
 	}
 	for _, tag := range tags {
 		if tag == "nullable" {
+			return true
+		}
+	}
+	return false
+}
+
+func hasOmitEmpty(f reflect.StructField) bool {
+	jsonTagString := f.Tag.Get("json")
+	jsonTags := strings.Split(jsonTagString, ",")
+
+	for _, tag := range jsonTags[1:] {
+		if tag == "omitempty" {
 			return true
 		}
 	}

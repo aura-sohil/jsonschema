@@ -190,6 +190,39 @@ will output:
 }
 ```
 
+### UseArrayForNullableTypes
+
+When set to `true`, nullable types (fields with `omitempty` tags or explicit `jsonschema:"nullable"`) will use the array format `["type", "null"]` instead of oneOf structures. This can be useful for compatibility with certain JSON Schema validators or for generating more compact schemas.
+
+Default behavior (oneOf format):
+```json
+{
+  "name": {
+    "oneOf": [
+      {"type": "string"},
+      {"type": "null"}
+    ]
+  }
+}
+```
+
+With `UseArrayForNullableTypes: true`:
+```json
+{
+  "name": {
+    "type": ["string", "null"]
+  }
+}
+```
+
+Example usage:
+```go
+r := &jsonschema.Reflector{
+	UseArrayForNullableTypes: true,
+}
+schema := r.Reflect(&MyStruct{})
+```
+
 ### Using Go Comments
 
 Writing a good schema with descriptions inside tags can become cumbersome and tedious, especially if you already have some Go comments around your types and field definitions. If you'd like to take advantage of these existing comments, you can use the `AddGoComments(base, path string)` method that forms part of the reflector to parse your go files and automatically generate a dictionary of Go import paths, types, and fields, to individual comments. These will then be used automatically as description fields, and can be overridden with a manual definition if needed.
