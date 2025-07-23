@@ -1,7 +1,7 @@
 // Package jsonschema uses reflection to generate JSON Schemas from Go types [1].
 //
 // If json tags are present on struct fields, they will be used to infer
-// property names and if a property is required (omitempty is present).
+// property names and if a property is required (omitempty or omitzero is present).
 //
 // [1] http://json-schema.org/latest/json-schema-validation.html
 package jsonschema
@@ -103,13 +103,13 @@ type Reflector struct {
 
 	// RequiredFromJSONSchemaTags will cause the Reflector to generate a schema
 	// that requires any key tagged with `jsonschema:required`, overriding the
-	// default of requiring any key *not* tagged with `json:,omitempty`.
+	// default of requiring any key *not* tagged with `json:,omitempty` or `json:,omitzero`.
 	RequiredFromJSONSchemaTags bool
 
 	// UseArrayForNullableTypes when true will represent nullable types using the
 	// array syntax ["type", "null"] instead of oneOf structures. This applies to
 	// both explicitly nullable fields (jsonschema:"nullable") and fields with
-	// omitempty tags. When false, uses the traditional oneOf format.
+	// omitempty or omitzero tags. When false, uses the traditional oneOf format.
 	UseArrayForNullableTypes bool
 
 	// Do not reference definitions. This will remove the top-level $defs map and
@@ -536,7 +536,7 @@ func (r *Reflector) reflectStructFields(st *Schema, definitions Definitions, t r
 		}
 
 		// Handle nullable fields
-		if (nullable || hasOmitEmpty(f)) && property.OneOf == nil && property.AnyOf == nil {
+		if (nullable || hasOmitEmpty(f) || hasOmitZero(f)) && property.OneOf == nil && property.AnyOf == nil {
 			if r.UseArrayForNullableTypes {
 				// Use array format: ["type", "null"]
 				property = makeNullableType(property)
@@ -974,7 +974,7 @@ func requiredFromJSONTags(tags []string, val *bool) {
 	}
 
 	for _, tag := range tags[1:] {
-		if tag == "omitempty" {
+		if tag == "omitempty" || tag == "omitzero" {
 			*val = false
 			return
 		}
@@ -1011,6 +1011,18 @@ func hasOmitEmpty(f reflect.StructField) bool {
 
 	for _, tag := range jsonTags[1:] {
 		if tag == "omitempty" {
+			return true
+		}
+	}
+	return false
+}
+
+func hasOmitZero(f reflect.StructField) bool {
+	jsonTagString := f.Tag.Get("json")
+	jsonTags := strings.Split(jsonTagString, ",")
+
+	for _, tag := range jsonTags[1:] {
+		if tag == "omitzero" {
 			return true
 		}
 	}
