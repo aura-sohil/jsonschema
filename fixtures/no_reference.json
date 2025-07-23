@@ -48,51 +48,121 @@
       "writeOnly": true
     },
     "friends": {
-      "items": {
-        "type": "integer"
-      },
-      "type": "array",
-      "description": "list of IDs, omitted when empty"
+      "oneOf": [
+        {
+          "items": {
+            "type": "integer"
+          },
+          "type": "array",
+          "description": "list of IDs, omitted when empty"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "tags": {
-      "additionalProperties": {
-        "type": "string"
-      },
-      "type": "object"
+      "oneOf": [
+        {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "options": {
-      "type": "object"
+      "oneOf": [
+        {
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "TestFlag": {
       "type": "boolean"
     },
     "TestFlagFalse": {
-      "type": "boolean",
-      "default": false
+      "oneOf": [
+        {
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "TestFlagTrue": {
-      "type": "boolean",
-      "default": true
+      "oneOf": [
+        {
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "birth_date": {
-      "type": "string",
-      "format": "date-time"
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "website": {
-      "type": "string",
-      "format": "uri"
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "uri"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "network_address": {
-      "type": "string",
-      "format": "ipv4"
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "ipv4"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "photo": {
-      "type": "string",
-      "contentEncoding": "base64"
+      "oneOf": [
+        {
+          "type": "string",
+          "contentEncoding": "base64"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "photo2": {
-      "type": "string",
-      "contentEncoding": "base64"
+      "oneOf": [
+        {
+          "type": "string",
+          "contentEncoding": "base64"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "feeling": {
       "oneOf": [
@@ -128,9 +198,16 @@
       "hello": "world"
     },
     "bool_extra": {
-      "type": "string",
-      "isFalse": false,
-      "isTrue": true
+      "oneOf": [
+        {
+          "type": "string",
+          "isFalse": false,
+          "isTrue": true
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "color": {
       "type": "string",
@@ -141,19 +218,33 @@
       ]
     },
     "rank": {
-      "type": "integer",
-      "enum": [
-        1,
-        2,
-        3
+      "oneOf": [
+        {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "type": "null"
+        }
       ]
     },
     "mult": {
-      "type": "number",
-      "enum": [
-        1.0,
-        1.5,
-        2.0
+      "oneOf": [
+        {
+          "type": "number",
+          "enum": [
+            1.0,
+            1.5,
+            2.0
+          ]
+        },
+        {
+          "type": "null"
+        }
       ]
     },
     "roles": {
@@ -168,28 +259,49 @@
       "type": "array"
     },
     "priorities": {
-      "items": {
-        "type": "integer",
-        "enum": [
-          -1,
-          0,
-          1
-        ]
-      },
-      "type": "array"
+      "oneOf": [
+        {
+          "items": {
+            "type": "integer",
+            "enum": [
+              -1,
+              0,
+              1
+            ]
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "offsets": {
-      "items": {
-        "type": "number",
-        "enum": [
-          1.570796,
-          3.141592,
-          6.283185
-        ]
-      },
-      "type": "array"
+      "oneOf": [
+        {
+          "items": {
+            "type": "number",
+            "enum": [
+              1.570796,
+              3.141592,
+              6.283185
+            ]
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
-    "anything": true,
+    "anything": {
+      "oneOf": [
+        true,
+        {
+          "type": "null"
+        }
+      ]
+    },
     "raw": true
   },
   "additionalProperties": false,
