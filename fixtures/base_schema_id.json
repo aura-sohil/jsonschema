@@ -25,7 +25,14 @@
           "$ref": "#/$defs/LookupName"
         },
         "alias": {
-          "type": "string"
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false,

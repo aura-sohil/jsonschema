@@ -10,7 +10,14 @@
           "description": "some extra words"
         },
         "middle_name": {
-          "type": "string"
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false,

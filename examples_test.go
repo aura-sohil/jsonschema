@@ -62,26 +62,54 @@ func ExampleReflect() {
 	//           ]
 	//         },
 	//         "friends": {
-	//           "items": {
-	//             "type": "integer"
-	//           },
-	//           "type": "array",
-	//           "description": "The list of IDs, omitted when empty"
+	//           "oneOf": [
+	//             {
+	//               "items": {
+	//                 "type": "integer"
+	//               },
+	//               "type": "array",
+	//               "description": "The list of IDs, omitted when empty"
+	//             },
+	//             {
+	//               "type": "null"
+	//             }
+	//           ]
 	//         },
 	//         "tags": {
-	//           "type": "object",
-	//           "a": "b",
-	//           "foo": [
-	//             "bar",
-	//             "bar1"
+	//           "oneOf": [
+	//             {
+	//               "type": "object",
+	//               "a": "b",
+	//               "foo": [
+	//                 "bar",
+	//                 "bar1"
+	//               ]
+	//             },
+	//             {
+	//               "type": "null"
+	//             }
 	//           ]
 	//         },
 	//         "birth_date": {
-	//           "type": "string",
-	//           "format": "date-time"
+	//           "oneOf": [
+	//             {
+	//               "type": "string",
+	//               "format": "date-time"
+	//             },
+	//             {
+	//               "type": "null"
+	//             }
+	//           ]
 	//         },
 	//         "year_of_birth": {
-	//           "type": "string"
+	//           "oneOf": [
+	//             {
+	//               "type": "string"
+	//             },
+	//             {
+	//               "type": "null"
+	//             }
+	//           ]
 	//         },
 	//         "metadata": {
 	//           "oneOf": [
@@ -94,11 +122,18 @@ func ExampleReflect() {
 	//           ]
 	//         },
 	//         "fav_color": {
-	//           "type": "string",
-	//           "enum": [
-	//             "red",
-	//             "green",
-	//             "blue"
+	//           "oneOf": [
+	//             {
+	//               "type": "string",
+	//               "enum": [
+	//                 "red",
+	//                 "green",
+	//                 "blue"
+	//               ]
+	//             },
+	//             {
+	//               "type": "null"
+	//             }
 	//           ]
 	//         }
 	//       },

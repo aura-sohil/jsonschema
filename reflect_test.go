@@ -473,6 +473,7 @@ func TestSchemaGeneration(t *testing.T) {
 		{SchemaExtendTest{}, &Reflector{}, "fixtures/custom_type_extend.json"},
 		{Expression{}, &Reflector{}, "fixtures/schema_with_expression.json"},
 		{PatternEqualsTest{}, &Reflector{}, "fixtures/equals_in_pattern.json"},
+		{&TestOmitZero{}, &Reflector{}, "fixtures/omit_zero.json"},
 	}
 
 	for _, tt := range tests {
@@ -663,4 +664,197 @@ func TestJSONSchemaAlias(t *testing.T) {
 	r := &Reflector{}
 	compareSchemaOutput(t, "fixtures/schema_alias.json", r, &AliasObjectB{})
 	compareSchemaOutput(t, "fixtures/schema_alias_2.json", r, &AliasObjectC{})
+}
+
+func TestUseArrayForNullableTypes(t *testing.T) {
+	type TestStruct struct {
+		// Required field - no null support
+		ID int `json:"id"`
+
+		// Optional field with omitempty - should get null support with array format
+		Name string `json:"name,omitempty"`
+
+		// Explicitly nullable field - should also get null support with array format
+		Description string `json:"description" jsonschema:"nullable"`
+
+		// Complex field that's optional
+		Tags map[string]string `json:"tags,omitempty"`
+	}
+
+	// Test with UseArrayForNullableTypes: true
+	r := &Reflector{UseArrayForNullableTypes: true}
+	schema := r.Reflect(&TestStruct{})
+
+	data, err := json.MarshalIndent(schema, "", "  ")
+	require.NoError(t, err)
+
+	var result map[string]any
+	err = json.Unmarshal(data, &result)
+	require.NoError(t, err)
+
+	// Check that nullable fields use array format
+	defs := result["$defs"].(map[string]any)
+	testStruct := defs["TestStruct"].(map[string]any)
+	properties := testStruct["properties"].(map[string]any)
+
+	// Name field should be ["string", "null"]
+	nameField := properties["name"].(map[string]any)
+	nameType := nameField["type"].([]any)
+	assert.Equal(t, []any{"string", "null"}, nameType)
+
+	// Description field should be ["string", "null"]
+	descField := properties["description"].(map[string]any)
+	descType := descField["type"].([]any)
+	assert.Equal(t, []any{"string", "null"}, descType)
+
+	// Tags field should be ["object", "null"]
+	tagsField := properties["tags"].(map[string]any)
+	tagsType := tagsField["type"].([]any)
+	assert.Equal(t, []any{"object", "null"}, tagsType)
+
+	// ID field should just be "integer" (not nullable)
+	idField := properties["id"].(map[string]any)
+	idType := idField["type"].(string)
+	assert.Equal(t, "integer", idType)
+}
+
+func TestUseArrayForNullableTypesFalse(t *testing.T) {
+	type TestStruct struct {
+		Name        string `json:"name,omitempty"`
+		Description string `json:"description" jsonschema:"nullable"`
+	}
+
+	// Test with UseArrayForNullableTypes: false (default)
+	r := &Reflector{UseArrayForNullableTypes: false}
+	schema := r.Reflect(&TestStruct{})
+
+	data, err := json.MarshalIndent(schema, "", "  ")
+	require.NoError(t, err)
+
+	var result map[string]any
+	err = json.Unmarshal(data, &result)
+	require.NoError(t, err)
+
+	// Check that nullable fields use oneOf format
+	defs := result["$defs"].(map[string]any)
+	testStruct := defs["TestStruct"].(map[string]any)
+	properties := testStruct["properties"].(map[string]any)
+
+	// Name field should use oneOf
+	nameField := properties["name"].(map[string]any)
+	_, hasOneOf := nameField["oneOf"]
+	assert.True(t, hasOneOf, "Expected oneOf for omitempty field")
+
+	// Description field should use oneOf
+	descField := properties["description"].(map[string]any)
+	_, hasOneOfDesc := descField["oneOf"]
+	assert.True(t, hasOneOfDesc, "Expected oneOf for nullable field")
+}
+
+func TestOmitZeroSupport(t *testing.T) {
+	type TestOmitZero struct {
+		// Required field - no null support
+		ID int `json:"id"`
+
+		// Field with omitzero - should get null support
+		Age int `json:"age,omitzero"`
+
+		// Field with omitempty - should also get null support
+		Name string `json:"name,omitempty"`
+
+		// Field with omitzero string - should get null support
+		Title string `json:"title,omitzero"`
+
+		// Field with both omitempty and omitzero (omitzero should work)
+		Description string `json:"description,omitempty,omitzero"`
+
+		// Complex field with omitzero
+		Tags map[string]string `json:"tags,omitzero"`
+	}
+
+	// Test with UseArrayForNullableTypes: true
+	r := &Reflector{UseArrayForNullableTypes: true}
+	schema := r.Reflect(&TestOmitZero{})
+
+	data, err := json.MarshalIndent(schema, "", "  ")
+	require.NoError(t, err)
+
+	var result map[string]any
+	err = json.Unmarshal(data, &result)
+	require.NoError(t, err)
+
+	// Check that nullable fields use array format
+	defs := result["$defs"].(map[string]any)
+	testStruct := defs["TestOmitZero"].(map[string]any)
+	properties := testStruct["properties"].(map[string]any)
+
+	// Age field with omitzero should be ["integer", "null"]
+	ageField := properties["age"].(map[string]any)
+	ageType := ageField["type"].([]any)
+	assert.Equal(t, []any{"integer", "null"}, ageType)
+
+	// Name field with omitempty should be ["string", "null"]
+	nameField := properties["name"].(map[string]any)
+	nameType := nameField["type"].([]any)
+	assert.Equal(t, []any{"string", "null"}, nameType)
+
+	// Title field with omitzero should be ["string", "null"]
+	titleField := properties["title"].(map[string]any)
+	titleType := titleField["type"].([]any)
+	assert.Equal(t, []any{"string", "null"}, titleType)
+
+	// Description field with both tags should be ["string", "null"]
+	descField := properties["description"].(map[string]any)
+	descType := descField["type"].([]any)
+	assert.Equal(t, []any{"string", "null"}, descType)
+
+	// Tags field with omitzero should be ["object", "null"]
+	tagsField := properties["tags"].(map[string]any)
+	tagsType := tagsField["type"].([]any)
+	assert.Equal(t, []any{"object", "null"}, tagsType)
+
+	// ID field should just be "integer" (not nullable)
+	idField := properties["id"].(map[string]any)
+	idType := idField["type"].(string)
+	assert.Equal(t, "integer", idType)
+}
+
+func TestOmitZeroWithOneOf(t *testing.T) {
+	type TestOmitZeroOneOf struct {
+		Name        string `json:"name,omitzero"`
+		Description string `json:"description" jsonschema:"nullable"`
+	}
+
+	// Test with UseArrayForNullableTypes: false (default)
+	r := &Reflector{UseArrayForNullableTypes: false}
+	schema := r.Reflect(&TestOmitZeroOneOf{})
+
+	data, err := json.MarshalIndent(schema, "", "  ")
+	require.NoError(t, err)
+
+	var result map[string]any
+	err = json.Unmarshal(data, &result)
+	require.NoError(t, err)
+
+	// Check that nullable fields use oneOf format
+	defs := result["$defs"].(map[string]any)
+	testStruct := defs["TestOmitZeroOneOf"].(map[string]any)
+	properties := testStruct["properties"].(map[string]any)
+
+	// Name field with omitzero should use oneOf
+	nameField := properties["name"].(map[string]any)
+	_, hasOneOf := nameField["oneOf"]
+	assert.True(t, hasOneOf, "Expected oneOf for omitzero field")
+
+	// Description field should use oneOf
+	descField := properties["description"].(map[string]any)
+	_, hasOneOfDesc := descField["oneOf"]
+	assert.True(t, hasOneOfDesc, "Expected oneOf for nullable field")
+}
+
+type TestOmitZero struct {
+	ID    int    `json:"id"`
+	Name  string `json:"name,omitzero"`
+	Age   int    `json:"age,omitzero"`
+	Email string `json:"email,omitempty"` // Mix with omitempty
 }

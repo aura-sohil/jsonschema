@@ -3,7 +3,14 @@
   "$id": "https://github.com/aura-sohil/jsonschema/outer-inlined",
   "properties": {
     "text": {
-      "type": "string"
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "Foo": {
       "type": "string"

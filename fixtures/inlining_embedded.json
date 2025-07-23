@@ -17,7 +17,14 @@
   },
   "properties": {
     "text": {
-      "type": "string"
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "inner": {
       "$ref": "#/$defs/Inner"
