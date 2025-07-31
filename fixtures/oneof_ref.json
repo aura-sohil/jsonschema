@@ -16,24 +16,17 @@
           ]
         },
         "ip_addresses": {
-          "oneOf": [
-            {
-              "items": {
-                "oneOf": [
-                  {
-                    "$ref": "#/$defs/ipv4"
-                  },
-                  {
-                    "$ref": "#/$defs/ipv6"
-                  }
-                ]
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/ipv4"
               },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
+              {
+                "$ref": "#/$defs/ipv6"
+              }
+            ]
+          },
+          "type": "array"
         },
         "ip_address_any": {
           "anyOf": [
@@ -46,24 +39,17 @@
           ]
         },
         "ip_addresses_any": {
-          "oneOf": [
-            {
-              "items": {
-                "anyOf": [
-                  {
-                    "$ref": "#/$defs/ipv4"
-                  },
-                  {
-                    "$ref": "#/$defs/ipv6"
-                  }
-                ]
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ipv4"
               },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
+              {
+                "$ref": "#/$defs/ipv6"
+              }
+            ]
+          },
+          "type": "array"
         }
       },
       "additionalProperties": false,

@@ -9,14 +9,7 @@
           "$ref": "https://example.com/schemas/lookup-name"
         },
         "alias": {
-          "oneOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "string"
         }
       },
       "additionalProperties": false,

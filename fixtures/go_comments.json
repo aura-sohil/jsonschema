@@ -40,16 +40,9 @@
           "description": "This comment will be used"
         },
         "multicellular": {
-          "oneOf": [
-            {
-              "type": "boolean",
-              "title": "Multicellular",
-              "description": "Multicellular is true if the plant is multicellular"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "boolean",
+          "title": "Multicellular",
+          "description": "Multicellular is true if the plant is multicellular"
         }
       },
       "additionalProperties": false,
@@ -79,28 +72,14 @@
           ]
         },
         "friends": {
-          "oneOf": [
-            {
-              "items": {
-                "type": "integer"
-              },
-              "type": "array",
-              "description": "list of IDs, omitted when empty"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "items": {
+            "type": "integer"
+          },
+          "type": "array",
+          "description": "list of IDs, omitted when empty"
         },
         "tags": {
-          "oneOf": [
-            {
-              "type": "object"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "object"
         },
         "pets": {
           "$ref": "#/$defs/Pets",

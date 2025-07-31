@@ -18,15 +18,8 @@
           "description": "test4"
         },
         "middle_name": {
-          "oneOf": [
-            {
-              "type": "string",
-              "description": "test5"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "string",
+          "description": "test5"
         }
       },
       "additionalProperties": false,

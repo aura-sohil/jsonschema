@@ -62,54 +62,26 @@ func ExampleReflect() {
 	//           ]
 	//         },
 	//         "friends": {
-	//           "oneOf": [
-	//             {
-	//               "items": {
-	//                 "type": "integer"
-	//               },
-	//               "type": "array",
-	//               "description": "The list of IDs, omitted when empty"
-	//             },
-	//             {
-	//               "type": "null"
-	//             }
-	//           ]
+	//           "items": {
+	//             "type": "integer"
+	//           },
+	//           "type": "array",
+	//           "description": "The list of IDs, omitted when empty"
 	//         },
 	//         "tags": {
-	//           "oneOf": [
-	//             {
-	//               "type": "object",
-	//               "a": "b",
-	//               "foo": [
-	//                 "bar",
-	//                 "bar1"
-	//               ]
-	//             },
-	//             {
-	//               "type": "null"
-	//             }
+	//           "type": "object",
+	//           "a": "b",
+	//           "foo": [
+	//             "bar",
+	//             "bar1"
 	//           ]
 	//         },
 	//         "birth_date": {
-	//           "oneOf": [
-	//             {
-	//               "type": "string",
-	//               "format": "date-time"
-	//             },
-	//             {
-	//               "type": "null"
-	//             }
-	//           ]
+	//           "type": "string",
+	//           "format": "date-time"
 	//         },
 	//         "year_of_birth": {
-	//           "oneOf": [
-	//             {
-	//               "type": "string"
-	//             },
-	//             {
-	//               "type": "null"
-	//             }
-	//           ]
+	//           "type": "string"
 	//         },
 	//         "metadata": {
 	//           "oneOf": [
@@ -122,18 +94,11 @@ func ExampleReflect() {
 	//           ]
 	//         },
 	//         "fav_color": {
-	//           "oneOf": [
-	//             {
-	//               "type": "string",
-	//               "enum": [
-	//                 "red",
-	//                 "green",
-	//                 "blue"
-	//               ]
-	//             },
-	//             {
-	//               "type": "null"
-	//             }
+	//           "type": "string",
+	//           "enum": [
+	//             "red",
+	//             "green",
+	//             "blue"
 	//           ]
 	//         }
 	//       },
