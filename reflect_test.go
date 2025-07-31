@@ -743,7 +743,7 @@ func TestUseArrayForNullableTypesFalse(t *testing.T) {
 	// Name field should use oneOf
 	nameField := properties["name"].(map[string]any)
 	_, hasOneOf := nameField["oneOf"]
-	assert.True(t, hasOneOf, "Expected oneOf for omitempty field")
+	assert.False(t, hasOneOf, "Expected no oneOf for omitempty field")
 
 	// Description field should use oneOf
 	descField := properties["description"].(map[string]any)
@@ -844,7 +844,7 @@ func TestOmitZeroWithOneOf(t *testing.T) {
 	// Name field with omitzero should use oneOf
 	nameField := properties["name"].(map[string]any)
 	_, hasOneOf := nameField["oneOf"]
-	assert.True(t, hasOneOf, "Expected oneOf for omitzero field")
+	assert.False(t, hasOneOf, "Expected no oneOf for omitzero field")
 
 	// Description field should use oneOf
 	descField := properties["description"].(map[string]any)

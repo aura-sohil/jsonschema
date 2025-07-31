@@ -109,7 +109,8 @@ type Reflector struct {
 	// UseArrayForNullableTypes when true will represent nullable types using the
 	// array syntax ["type", "null"] instead of oneOf structures. This applies to
 	// both explicitly nullable fields (jsonschema:"nullable") and fields with
-	// omitempty or omitzero tags. When false, uses the traditional oneOf format.
+	// omitempty or omitzero tags. When false, uses the traditional oneOf format
+	// for nullable fields ONLY.
 	UseArrayForNullableTypes bool
 
 	// Do not reference definitions. This will remove the top-level $defs map and
@@ -540,8 +541,8 @@ func (r *Reflector) reflectStructFields(st *Schema, definitions Definitions, t r
 			if r.UseArrayForNullableTypes {
 				// Use array format: ["type", "null"]
 				property = makeNullableType(property)
-			} else {
-				// Use traditional oneOf format
+			} else if nullable {
+				// Use traditional oneOf format for nullable fields
 				property = &Schema{
 					OneOf: []*Schema{
 						property,
