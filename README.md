@@ -194,6 +194,21 @@ will output:
 }
 ```
 
+### AllFieldsRequired
+
+Setting `AllFieldsRequired: true` forces every reflected struct field to appear in the resulting schema's `required` list, regardless of `omitempty`, `omitzero`, or other tag-based hints. This is helpful when runtime code tolerates missing JSON fields but you want the schema to enforce their presence during validation.
+
+`UseArrayForNullableTypes` continues to control how nullable semantics are expressed. When both flags are enabled, nullable fields will still emit `["type", "null"]` while also being listed as required.
+
+Example usage:
+```go
+r := &jsonschema.Reflector{
+	AllFieldsRequired:       true,
+	UseArrayForNullableTypes: true,
+}
+schema := r.Reflect(&MyStruct{})
+```
+
 ### UseArrayForNullableTypes
 
 When set to `true`, nullable types (fields with `omitempty` or `omitzero` tags or explicit `jsonschema:"nullable"`) will use the array format `["type", "null"]` instead of oneOf structures. This can be useful for compatibility with certain JSON Schema validators or for generating more compact schemas.

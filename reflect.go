@@ -106,6 +106,10 @@ type Reflector struct {
 	// default of requiring any key *not* tagged with `json:,omitempty` or `json:,omitzero`.
 	RequiredFromJSONSchemaTags bool
 
+	// AllFieldsRequired forces every reflected struct field to be marked as required,
+	// ignoring omitempty, omitzero, and other tag-based settings.
+	AllFieldsRequired bool
+
 	// UseArrayForNullableTypes when true will represent nullable types using the
 	// array syntax ["type", "null"] instead of oneOf structures. This applies to
 	// both explicitly nullable fields (jsonschema:"nullable") and fields with
@@ -555,7 +559,7 @@ func (r *Reflector) reflectStructFields(st *Schema, definitions Definitions, t r
 		}
 
 		st.Properties.Set(name, property)
-		if required {
+		if required || r.AllFieldsRequired {
 			st.Required = appendUniqueString(st.Required, name)
 		}
 	}
@@ -598,7 +602,9 @@ func makeNullableType(schema *Schema) *Schema {
 		}
 		// Add null to existing array
 		newSchema := *schema
-		newSchema.Type = append(typeArray, "null")
+		copied := append([]string{}, typeArray...)
+		copied = append(copied, "null")
+		newSchema.Type = copied
 		return &newSchema
 	}
 

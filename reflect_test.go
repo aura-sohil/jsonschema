@@ -751,6 +751,69 @@ func TestUseArrayForNullableTypesFalse(t *testing.T) {
 	assert.True(t, hasOneOfDesc, "Expected oneOf for nullable field")
 }
 
+func TestAllFieldsRequired(t *testing.T) {
+	type AllFieldsRequiredStruct struct {
+		Optional string `json:"optional,omitempty"`
+		OmitZero int    `json:"omit_zero,omitzero"`
+		Nullable string `json:"nullable" jsonschema:"nullable"`
+		Regular  int    `json:"regular"`
+	}
+
+	requireAllFields := func(t *testing.T, r *Reflector, expectArrayNullables bool) {
+		t.Helper()
+
+		schema := r.Reflect(&AllFieldsRequiredStruct{})
+		definition, ok := schema.Definitions["AllFieldsRequiredStruct"]
+		require.True(t, ok, "expected definition for AllFieldsRequiredStruct")
+
+		assert.ElementsMatch(t, []string{"optional", "omit_zero", "nullable", "regular"}, definition.Required)
+
+		getProperty := func(name string) *Schema {
+			prop, ok := definition.Properties.Get(name)
+			require.True(t, ok, "expected property %q", name)
+			return prop
+		}
+
+		optionalProp := getProperty("optional")
+		omitZeroProp := getProperty("omit_zero")
+		nullableProp := getProperty("nullable")
+
+		if expectArrayNullables {
+			optionalType, ok := optionalProp.Type.([]string)
+			require.True(t, ok, "optional property should use array type when nullable arrays are enabled")
+			assert.Equal(t, []string{"string", "null"}, optionalType)
+
+			omitZeroType, ok := omitZeroProp.Type.([]string)
+			require.True(t, ok, "omit_zero property should use array type when nullable arrays are enabled")
+			assert.Equal(t, []string{"integer", "null"}, omitZeroType)
+
+			nullableType, ok := nullableProp.Type.([]string)
+			require.True(t, ok, "nullable property should use array type when nullable arrays are enabled")
+			assert.Equal(t, []string{"string", "null"}, nullableType)
+		} else {
+			assert.IsType(t, "", optionalProp.Type, "optional property should retain string type when nullable arrays disabled")
+			assert.IsType(t, "", omitZeroProp.Type, "omit_zero property should retain string type when nullable arrays disabled")
+			require.NotNil(t, nullableProp.OneOf, "nullable property should continue to use oneOf when nullable arrays disabled")
+		}
+	}
+
+	t.Run("nullable arrays enabled", func(t *testing.T) {
+		r := &Reflector{
+			AllFieldsRequired:        true,
+			UseArrayForNullableTypes: true,
+		}
+		requireAllFields(t, r, true)
+	})
+
+	t.Run("nullable arrays disabled", func(t *testing.T) {
+		r := &Reflector{
+			AllFieldsRequired:        true,
+			UseArrayForNullableTypes: false,
+		}
+		requireAllFields(t, r, false)
+	})
+}
+
 func TestOmitZeroSupport(t *testing.T) {
 	type TestOmitZero struct {
 		// Required field - no null support
